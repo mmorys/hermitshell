@@ -66,4 +66,4 @@ C_GREEN='\[\e[32m\]'
 C_RESET='\[\e[00m\]'
 
 # Build the prompt
-PS1="${C_BLUE}\w${C_RESET}\$(__parse_git_branch) ${C_GREEN}❯${C_RESET} "
+PS1="${C_BLUE}\w${C_RESET}\$(__parse_git_branch)\n${C_GREEN}❯${C_RESET} "
