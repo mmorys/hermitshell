@@ -59,23 +59,38 @@ autoload -Uz add-zsh-hook
 zsh_git_counts() {
     # Check if we are in a git repo
     if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-        # Get the status porcelain output once to save performance
+        # 1. Get file status counts
         local status_output=$(git status --porcelain 2>/dev/null)
-        
-        # Count staged files (Changes to be committed - first column)
         local staged_count=$(echo "$status_output" | grep -c '^[MADRC]')
-        # Count unstaged files (Changes not staged for commit - second column)
         local unstaged_count=$(echo "$status_output" | grep -c '^.[MD]')
-        # Count untracked files
         local untracked_count=$(echo "$status_output" | grep -c '??')
 
+        # 2. Get ahead/behind counts
+        local ahead=0
+        local behind=0
+        
+        # Check if the current branch has an upstream configured
+        local upstream=$(git rev-parse --abbrev-ref @{u} 2>/dev/null)
+        if [[ -n "$upstream" ]]; then
+            # This returns "ahead behind" e.g., "1 2"
+            local rev_counts=$(git rev-list --left-right --count HEAD...@{u} 2>/dev/null)
+            # Use read to split the string into two variables
+            read ahead behind <<< "$rev_counts"
+        fi
+
         GIT_COUNTS=""
-        # Staged (+) - Green
-        [[ $staged_count -gt 0 ]] && GIT_COUNTS+="%F{green} +$staged_count%f"
-        # Unstaged (!) - Yellow
-        [[ $unstaged_count -gt 0 ]] && GIT_COUNTS+="%F{yellow} !$unstaged_count%f"
-        # Untracked (?) - Red/Blue (Red used here for visibility)
-        [[ $untracked_count -gt 0 ]] && GIT_COUNTS+="%F{red} ?$untracked_count%f"
+
+        # Ahead/Behind Logic (⇣42⇡42)
+        local remote_info=""
+        [[ ${behind:-0} -gt 0 ]] && remote_info+="%F{red}⇣$behind%f"
+        [[ ${ahead:-0} -gt 0 ]] && remote_info+="%F{cyan}⇡$ahead%f"
+        
+        [[ -n $remote_info ]] && GIT_COUNTS+=" $remote_info"
+
+        # File Status Logic (+, !, ?)
+        [[ $staged_count -gt 0 ]] && GIT_COUNTS+=" %F{green}+$staged_count%f"
+        [[ $unstaged_count -gt 0 ]] && GIT_COUNTS+=" %F{yellow}!$unstaged_count%f"
+        [[ $untracked_count -gt 0 ]] && GIT_COUNTS+=" %F{red}?$untracked_count%f"
     else
         GIT_COUNTS=""
     fi
