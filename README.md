@@ -49,7 +49,7 @@ Deploying to a new (even offline) machine is a simple three-step process.
 ### 1. Clone the Repository
 Clone this repo to your home directory:
 ```bash
-git clone <YOUR_REPO_URL> ~/.dotfiles
+git clone https://github.com/mmorys/hermitshell.git ~/.dotfiles
 ```
 
 ### 2. Create Symlinks
