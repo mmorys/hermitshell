@@ -1,5 +1,9 @@
 # HermitShell
 
+<p align="center">
+  <img src="./logo.png" alt="Logo" width="200">
+</p>
+
 A lightweight, single-repo shell configuration designed for **offline deployment**. This setup provides a unified experience across **Zsh** and **Bash**, featuring a two-line Powerlevel10k-style prompt in ZSH without the overhead of heavy frameworks. There is no need for a separate dotfile manager to get started.
 
 ## ✨ Key Features
