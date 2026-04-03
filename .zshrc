@@ -53,20 +53,44 @@ if command -v fzf >/dev/null 2>&1; then
 fi
 
 ### -------------- Custom Prompt ----------
-# Uses Zsh's built-in vcs_info to extract Git data asynchronously/quickly
 autoload -Uz vcs_info
 autoload -Uz add-zsh-hook
-add-zsh-hook precmd vcs_info
 
-# Format the git string
-zstyle ':vcs_info:*' check-for-changes true
-zstyle ':vcs_info:git:*' unstagedstr ' *'
-zstyle ':vcs_info:git:*' stagedstr ' +'
-zstyle ':vcs_info:git:*' formats ' %F{green}%b%f%F{yellow}%u%c%f'
+zsh_git_counts() {
+    # Check if we are in a git repo
+    if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+        # Get the status porcelain output once to save performance
+        local status_output=$(git status --porcelain 2>/dev/null)
+        
+        # Count staged files (Changes to be committed - first column)
+        local staged_count=$(echo "$status_output" | grep -c '^[MADRC]')
+        # Count unstaged files (Changes not staged for commit - second column)
+        local unstaged_count=$(echo "$status_output" | grep -c '^.[MD]')
+        # Count untracked files
+        local untracked_count=$(echo "$status_output" | grep -c '??')
+
+        GIT_COUNTS=""
+        # Staged (+) - Green
+        [[ $staged_count -gt 0 ]] && GIT_COUNTS+="%F{green} +$staged_count%f"
+        # Unstaged (!) - Yellow
+        [[ $unstaged_count -gt 0 ]] && GIT_COUNTS+="%F{yellow} !$unstaged_count%f"
+        # Untracked (?) - Red/Blue (Red used here for visibility)
+        [[ $untracked_count -gt 0 ]] && GIT_COUNTS+="%F{red} ?$untracked_count%f"
+    else
+        GIT_COUNTS=""
+    fi
+}
+
+# Register hooks
+add-zsh-hook precmd vcs_info
+add-zsh-hook precmd zsh_git_counts
+
+# Format vcs_info for branch name
+zstyle ':vcs_info:git:*' formats ' %F{green}%b%f'
 
 # Build the prompt
 setopt PROMPT_SUBST
-PROMPT=$'%B%F{39}%~%f%b%B${vcs_info_msg_0_}%b\n%B%F{green}❯%f%b '
+PROMPT=$'%B%F{39}%~%f%b%B${vcs_info_msg_0_}${GIT_COUNTS}%b\n%B%F{green}❯%f%b '
 
 ### -------------- Completions -------------------
 # Load and initialize the completion system
