@@ -12,7 +12,7 @@ A lightweight, single-repo shell configuration designed for **offline deployment
 Install and configure **zsh** and **bash**:
 
 ```bash
-git clone https://github.com/mmorys/hermitshell.git ~/.hermitshell
+git clone --depth=1 https://github.com/mmorys/hermitshell.git ~/.hermitshell
 echo 'source ~/.hermitshell/hs_zshrc' >> ~/.zshrc
 echo 'source ~/.hermitshell/hs_bashrc' >> ~/.bashrc
 ```
@@ -64,7 +64,7 @@ This setup comes pre-loaded with the following vendored plugins to provide a "ba
 Clone this repo to your home directory:
 
 ```bash
-git clone https://github.com/mmorys/hermitshell.git ~/.hermitshell
+git clone --depth=1 https://github.com/mmorys/hermitshell.git ~/.hermitshell
 ```
 
 ### 2. Source the Configuration
@@ -97,9 +97,20 @@ source ~/.hermitshell/hs_env
 source ~/.hermitshell/hs_aliases_git
 ```
 
+## 🔄 Updating
+
+To update HermitShell to the latest version:
+
+```bash
+cd ~/.hermitshell
+git pull
+```
+
 ## 🛠 Maintenance
 
 ### Updating Plugins
+
+> **Note:** These instructions are meant to be carried out by the developer of the plugin, but included here in case there is a user need to perform this locally.
 
 Since this repo vendors plugin source code to remain offline-compatible, you cannot use standard plugin managers. Instead, use the provided update script. It performs "atomic" updates by cloning to a temporary directory and stripping Git metadata before moving files into place.
 
