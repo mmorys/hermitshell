@@ -1,10 +1,10 @@
 ### -------------- Source common -------------------
-source ./hs_env
-source ./hs_aliases_ls
-source ./hs_aliases_git
+source "$(dirname "${BASH_SOURCE[0]:-${(%):-%x}}")/hs_env"
+source "$(dirname "${BASH_SOURCE[0]:-${(%):-%x}}")/hs_aliases_ls"
+source "$(dirname "${BASH_SOURCE[0]:-${(%):-%x}}")/hs_aliases_git"
 
 ### -------------- History -------------------
-source ./hs_bash_hist
+source "$(dirname "${BASH_SOURCE[0]:-${(%):-%x}}")/hs_bash_hist"
 
 ### -------------- UI -------------------
-source ./hs_bash_ui
+source "$(dirname "${BASH_SOURCE[0]:-${(%):-%x}}")/hs_bash_ui"
