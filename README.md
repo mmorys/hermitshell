@@ -7,6 +7,8 @@
 
 A lightweight, single-repo shell configuration designed for **offline deployment**. This setup provides a unified experience across **Zsh**, **Bash**, and **Windows Git Bash** , featuring a two-line Powerlevel10k-style prompt without the overhead of heavy frameworks. It also provides some convenient plugins and familiar aliases. There is no need for a separate dotfile manager to get started.
 
+<img width="1185" height="426" alt="zsh prompt" src="https://github.com/user-attachments/assets/1d72bdf0-b7ba-4b54-ac61-31ca94d67226" />
+
 ## ⚡ Quickstart
 
 Install and configure **zsh** and **bash**:
