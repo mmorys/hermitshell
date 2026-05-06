@@ -1,16 +1,3 @@
-### -------------- Source common -------------------
-[ -f "$HOME/.commonrc" ] && source "$HOME/.commonrc"
-
-### -------------- History -------------------
-export HISTFILE=~/.zsh_history
-export HISTSIZE=50000
-export SAVEHIST=$HISTSIZE
-setopt APPEND_HISTORY
-setopt EXTENDED_HISTORY
-setopt HIST_IGNORE_DUPS
-setopt HIST_IGNORE_SPACE
-setopt SHARE_HISTORY
-
 ### -------------- Exports -------------------
 # Prepend custom functions and fzf-tab to fpath
 fpath=(~/.local/share/zsh/functions ~/.dotfiles/zsh/functions ~/.dotfiles/zsh/plugins/fzf-tab $fpath)
@@ -125,4 +112,3 @@ ZDOT_PLUGINS="$HOME/.dotfiles/zsh/plugins"
 [ -f "$ZDOT_PLUGINS/dirhistory/dirhistory.plugin.zsh" ] && source "$ZDOT_PLUGINS/dirhistory/dirhistory.plugin.zsh"
 # syntax-highlighting must be sourced last
 [ -f "$ZDOT_PLUGINS/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ] && source "$ZDOT_PLUGINS/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
-

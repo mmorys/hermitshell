@@ -1,0 +1,23 @@
+if [ -d "$HOME/.local/bin" ] && [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
+    export PATH="$HOME/.local/bin:$PATH"
+fi
+
+if command -v micro &> /dev/null; then
+    export EDITOR="micro"
+elif command -v nano &> /dev/null; then
+    export EDITOR="nano"
+elif command -v vim &> /dev/null; then
+    export EDITOR="vim"
+else
+    export EDITOR="vi"
+fi
+
+if command -v code &> /dev/null; then
+    export VISUAL="code"
+fi
+
+export TERM=xterm-256color
+export FORCE_COLOR=1
+
+### -------------- Private -------------------
+[ -f "$HOME/.privaterc" ] && source "$HOME/.privaterc"

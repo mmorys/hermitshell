@@ -1,0 +1,10 @@
+### -------------- Source common -------------------
+source ./hs_env
+source ./hs_aliases_ls
+source ./hs_aliases_git
+
+### -------------- History -------------------
+source ./hs_bash_hist
+
+### -------------- UI -------------------
+source ./hs_bash_ui
