@@ -66,7 +66,7 @@ __bash_prompt() {
         local untracked_count
         staged_count=$(echo "$status_output" | grep -c '^[MADRC]')
         unstaged_count=$(echo "$status_output" | grep -c '^.[MD]')
-        untracked_count=$(echo "$status_output" | grep -c '^\?\?')
+        untracked_count=$(echo "$status_output" | grep -c '??')
 
         # Ahead/behind counts
         local ahead=0
