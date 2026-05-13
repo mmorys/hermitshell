@@ -36,21 +36,64 @@ if command -v fzf >/dev/null 2>&1; then
 fi
 
 ### -------------- Custom Prompt ----------
-# Fast function to extract the current Git branch (Matches Zsh formatting)
-__parse_git_branch() {
-    local branch
-    branch=$(git branch --show-current 2> /dev/null)
-    if [ -n "$branch" ]; then
-        # \033[1;32m is Bold Green, \033[0m is Reset
-        echo -e " \033[1;32m${branch}\033[0m"
+__bash_prompt() {
+    # Define colors with \[ and \] to prevent line-wrapping issues in Bash
+    local C_DIR='\[\e[1;38;5;39m\]'   # Bold Blue (Matches Zsh %B%F{39})
+    local C_BOLD_GREEN='\[\e[1;32m\]'
+    local C_GREEN='\[\e[32m\]'
+    local C_YELLOW='\[\e[33m\]'
+    local C_RED='\[\e[31m\]'
+    local C_CYAN='\[\e[36m\]'
+    local C_RESET='\[\e[00m\]'
+
+    local branch=""
+    local git_info=""
+
+    if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+        # Branch name
+        local branch_name
+        branch_name=$(git branch --show-current 2>/dev/null)
+        if [ -n "$branch_name" ]; then
+            branch=" ${C_BOLD_GREEN}${branch_name}${C_RESET}"
+        fi
+
+        # File status counts from git status --porcelain
+        local status_output
+        status_output=$(git status --porcelain 2>/dev/null)
+
+        local staged_count
+        local unstaged_count
+        local untracked_count
+        staged_count=$(echo "$status_output" | grep -c '^[MADRC]')
+        unstaged_count=$(echo "$status_output" | grep -c '^.[MD]')
+        untracked_count=$(echo "$status_output" | grep -c '^\?\?')
+
+        # Ahead/behind counts
+        local ahead=0
+        local behind=0
+        local upstream
+        upstream=$(git rev-parse --abbrev-ref @{u} 2>/dev/null)
+        if [ -n "$upstream" ]; then
+            local rev_counts
+            rev_counts=$(git rev-list --left-right --count HEAD...@{u} 2>/dev/null)
+            # Use read instead of awk to avoid spawning subshells for performance
+            read ahead behind <<< "$rev_counts"
+        fi
+
+        # Build git status string
+        [ "${behind:-0}" -gt 0 ] && git_info+=" ${C_RED}⇣${behind}${C_RESET}"
+        [ "${ahead:-0}" -gt 0 ]  && git_info+=" ${C_CYAN}⇡${ahead}${C_RESET}"
+        [ "$staged_count" -gt 0 ] && git_info+=" ${C_GREEN}+${staged_count}${C_RESET}"
+        [ "$unstaged_count" -gt 0 ] && git_info+=" ${C_YELLOW}!${unstaged_count}${C_RESET}"
+        [ "$untracked_count" -gt 0 ] && git_info+=" ${C_RED}?${untracked_count}${C_RESET}"
     fi
+
+    # Build PS1 by concatenating the variables
+    PS1="${C_DIR}\w${C_RESET}${branch}${git_info}\n${C_BOLD_GREEN}❯${C_RESET} "
 }
 
-# Define color variables for the prompt
-# Note: \[ and \] are required in Bash to prevent line-wrapping issues
-C_BLUE='\[\e[34m\]'
-C_GREEN='\[\e[32m\]'
-C_RESET='\[\e[00m\]'
-
-# Build the prompt
-PS1="${C_BLUE}\w${C_RESET}\`__parse_git_branch\`\n${C_GREEN}❯${C_RESET} "
+# Append to PROMPT_COMMAND safely so we don't clobber fzf or other tools
+case ":${PROMPT_COMMAND}:" in
+    *:__bash_prompt:*) ;;  # already registered
+    *) PROMPT_COMMAND="__bash_prompt${PROMPT_COMMAND:+;$PROMPT_COMMAND}" ;;
+esac
