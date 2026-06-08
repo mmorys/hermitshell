@@ -37,6 +37,7 @@ This setup comes pre-loaded with the following vendored plugins to provide a "ba
 * **[zsh-syntax-highlighting](https://github.com/zsh-users/zsh-syntax-highlighting)**: Adds real-time color feedback to the command line, highlighting valid commands and syntax errors.
 * **[fzf-tab](https://github.com/Aloxaf/fzf-tab)**: Replaces the standard Zsh completion menu with a powerful, searchable `fzf` interface.
 * **[dirhistory](https://github.com/mmorys/dirhistory)**: Allows for fast directory navigation using `Alt` + `Arrow Keys` (Left/Right for back/forward, Up for parent).
+* **[zsh-z](https://github.com/agkozak/zsh-z)**: Highly optimized directory jumper using zsh-native functions, similar to `autojump` or `j`.
 
 ## 📁 Directory Structure
 

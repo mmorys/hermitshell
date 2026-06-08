@@ -16,6 +16,7 @@ declare -A PLUGINS=(
     ["zsh-syntax-highlighting"]="https://github.com/zsh-users/zsh-syntax-highlighting.git"
     ["fzf-tab"]="https://github.com/Aloxaf/fzf-tab.git"
     ["dirhistory"]="https://github.com/mmorys/dirhistory.git"
+    ["zsh-z"]="https://github.com/agkozak/zsh-z.git"
 )
 
 # Color helper using printf for maximum compatibility

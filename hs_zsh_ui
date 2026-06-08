@@ -102,7 +102,7 @@ PROMPT=$'%B%F{39}%~%f%b%B${vcs_info_msg_0_}${GIT_COUNTS}%b\n%B%F{green}❯%f%b '
 ZDOT_PLUGINS="$HS_DIR/zsh/plugins"
 
 # Sourced before compinit
-### -------------- Completions -------------------
+[ -f "$ZDOT_PLUGINS/zsh-z/zsh-z.plugin.zsh" ] && source "$ZDOT_PLUGINS/zsh-z/zsh-z.plugin.zsh"
 
 # Load and initialize the completion system
 autoload -Uz compinit
