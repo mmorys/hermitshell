@@ -39,6 +39,12 @@ This setup comes pre-loaded with the following vendored plugins to provide a "ba
 * **[dirhistory](https://github.com/mmorys/dirhistory)**: Allows for fast directory navigation using `Alt` + `Arrow Keys` (Left/Right for back/forward, Up for parent).
 * **[zsh-z](https://github.com/agkozak/zsh-z)**: Highly optimized directory jumper using zsh-native functions, similar to `autojump` or `j`.
 
+## 🐍 Python Virtual Environments
+
+HermitShell includes `hs_uv_virtualenvwrapper`, a convenience layer on top of Astral's `uv` that provides familiar `virtualenvwrapper`-style commands (`mkvirtualenv`/`mkv`, `workon`, `rmvirtualenv`/`rmv`, `lsvirtualenv`) for managing global Python virtual environments. Unlike the typical `uv` workflow where environments are scoped to a project directory, this keeps environments in a central location — useful for quick, preconfigured sandboxes not tied to a specific project. It is automatically sourced in hs_bashrc and hs_zshrc (only if uv install is detected).
+
+See the full description and configuration options in `hs_uv_virtualenvwrapper`.
+
 ## 📁 Directory Structure
 
 *Assuming a standard installation cloned to ~/.hermitshell*
@@ -54,6 +60,7 @@ This setup comes pre-loaded with the following vendored plugins to provide a "ba
 ├── hs_bash_hist         # Bash history settings
 ├── hs_zsh_ui            # Zsh UI (fzf, prompt, completions, plugins)
 ├── hs_bash_ui           # Bash UI (fzf, prompt)
+├── hs_uv_virtualenvwrapper # Global Python virtualenv management (virtualenvwrapper-style)
 └── zsh/
     ├── update-plugins.sh   # Atomic plugin update script
     ├── functions/          # Custom completion scripts (e.g., _docker)

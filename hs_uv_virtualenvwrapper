@@ -1,0 +1,167 @@
+#!/usr/bin/env bash
+
+# ==============================================================================
+# uv-virtualenvwrapper
+#
+# Requirement:
+#   Astral's `uv` must be installed and available in $PATH. If `uv` is not
+#   found, this script exits early without defining any functions or aliases.
+#
+# Description:
+#   This script provides a set of convenience functions and aliases for managing
+#   Python virtual environments centrally using Astral's `uv` tool. Unlike the
+#   typical `uv` workflow where environments are tied to the local project
+#   directory, this manages global virtual environments. This is useful for
+#   having a quick, preconfigured sandbox available that isn't tied to a
+#   project directory. It mimics the familiar workflow of `virtualenvwrapper`
+#   (mkvirtualenv, workon, etc.).
+#
+#   To customize the location of the global virtual environments, add the
+#   following to your ~/.privaterc (which is sourced by hs_env):
+#     export UV_GLOBAL_ENVS_ROOT=/path/to/uv/global/envs
+#
+# Initialization:
+#   The script automatically determines the best directory to store your global 
+#   virtual environments, prioritizing $UV_GLOBAL_ENVS_ROOT, then $XDG_DATA_HOME, 
+#   and finally defaulting to ~/.local/share/uv_global_envs. It also handles 
+#   Windows path conversions for Git Bash/MinGW users.
+#
+# Available Commands:
+#   mkvirtualenv [-p <python_version>] <venv_name>
+#       Creates a new virtual environment. 
+#       Example: mkvirtualenv -p 3.12 my_env
+#
+#   rmvirtualenv <venv_name>
+#       Deletes an existing virtual environment.
+#
+#   lsvirtualenv
+#       Lists all virtual environments stored in the global directory.
+#
+#   workon [<venv_name>]
+#       Activates the specified virtual environment. If no name is provided,
+#       it lists all available environments (same as calling lsvirtualenv).
+#
+# Aliases:
+#   mkv  -> mkvirtualenv
+#   rmv  -> rmvirtualenv
+#   dv   -> deactivate
+# ==============================================================================
+
+
+if ! command -v uv &> /dev/null; then
+    return 0 2>/dev/null || exit 0
+fi
+
+HOME_DIR="${HOME:-$USERPROFILE}"
+
+if [ -n "${UV_GLOBAL_ENVS_ROOT}" ]; then
+    TARGET_DIR="${UV_GLOBAL_ENVS_ROOT}"
+elif [ -n "${XDG_DATA_HOME}" ]; then
+    TARGET_DIR="${XDG_DATA_HOME}/uv_global_envs"
+else
+    TARGET_DIR="${HOME_DIR}/.local/share/uv_global_envs"
+fi
+
+# If running in Git Bash, convert Windows-style paths to POSIX if needed
+if [[ "$(expr substr $(uname -s) 1 10)" == "MINGW32_NT" ]] || [[ "$(expr substr $(uname -s) 1 10)" == "MINGW64_NT" ]]; then
+    # If the path looks like 'C:\Users\...', convert it so bash can mkdir without errors
+    if [[ "$TARGET_DIR" =~ ^[a-zA-Z]:\\ ]]; then
+        TARGET_DIR=$(cygpath -u "$TARGET_DIR")
+    fi
+fi
+
+if mkdir -p "$TARGET_DIR"; then
+    export UV_GLOBAL_ENVS_ROOT="$TARGET_DIR"
+else
+    exit 1
+fi
+
+mkvirtualenv() {
+    local python_version=""
+    local venv_name=""
+    local venv_root="$UV_GLOBAL_ENVS_ROOT"
+
+    # Parse options
+    while getopts ":p:" opt; do
+        case $opt in
+            p) python_version=$OPTARG ;;
+            \?) echo "Invalid option: -$OPTARG" >&2; return 1 ;;
+            :) echo "Option -$OPTARG requires an argument." >&2; return 1 ;;
+        esac
+    done
+
+    # Shift arguments to get the positional argument (venv_name)
+    shift $((OPTIND -1))
+    venv_name=$1
+
+    if [ -z "$venv_name" ]; then
+        echo "Usage: mkvirtualenv [-p python_version] venv_name"
+        echo "Example: mkvirtualenv -p 3.12 my_new_env"
+        return 1
+    fi
+
+    # Check if the virtual environment already exists
+    if [ -d "$venv_root/$venv_name" ]; then
+        echo "Error: Virtual environment '$venv_name' already exists."
+        return 1
+    fi
+
+    python_version=${python_version:-$GLOBAL_PYTHON_DEFAULT_VER}
+    uv venv -p "$python_version" "$venv_root/$venv_name"
+}
+
+rmvirtualenv() {
+    local venv_name=$1
+    local venv_root="$UV_GLOBAL_ENVS_ROOT"
+
+    if [ -z "$venv_name" ]; then
+        echo "Usage: rmvirtualenv venv_name"
+        return 1
+    fi
+
+    if [ -d "$venv_root/$venv_name" ]; then
+        # Check if the virtual environment is currently activated
+        if [ "$VIRTUAL_ENV" = "$venv_root/$venv_name" ]; then
+            echo "Cannot delete the currently activated virtual environment."
+            return 1
+        fi
+
+        # Delete the virtual environment directory
+        rm -rf "$venv_root/$venv_name"
+        echo "Virtual environment '$venv_name' has been deleted."
+    else
+        echo "Virtual environment '$venv_name' does not exist in $venv_root."
+        return 1
+    fi
+}
+
+lsvirtualenv() {
+    local venv_root="$UV_GLOBAL_ENVS_ROOT"
+
+    ls -1 "$venv_root"
+}
+
+workon() {
+    local venv_name=$1
+    local venv_root="$UV_GLOBAL_ENVS_ROOT"
+
+    if [ -z "$venv_name" ]; then
+        # No argument provided, list all available virtual environments
+        if [ -d "$venv_root" ]; then
+            lsvirtualenv
+        else
+            echo "No virtual environments found in $venv_root"
+        fi
+    else
+        # Argument provided, activate the specified virtual environment
+        if [ -d "$venv_root/$venv_name" ]; then
+            source "$venv_root/$venv_name/bin/activate"
+        else
+            echo "Virtual environment '$venv_name' does not exist in $venv_root"
+        fi
+    fi
+}
+
+alias dv="deactivate"
+alias mkv="mkvirtualenv"
+alias rmv="rmvirtualenv"
